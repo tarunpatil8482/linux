@@ -10,7 +10,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# Check file
+# Check input file
 if [ ! -f "$FILE" ]; then
     echo " File not found: $FILE"
     exit 1
@@ -31,25 +31,27 @@ chmod 600 "$LOG_FILE"
 
 echo "Starting user creation process..." | tee -a "$LOG_FILE"
 
+# Convert file to Linux format (fix CRLF ^M issue)
+dos2unix "$FILE" 2>/dev/null
+
 # Read each line
 while IFS= read -r line || [ -n "$line" ]; do
 
-
-    # Trim whitespace
+    # Remove leading/trailing spaces
     line=$(echo "$line" | xargs)
 
     # Skip empty lines
     [ -z "$line" ] && continue
 
-    # Skip comment lines (#...)
-    if [[ $line == \#* ]]; then
-        echo "Skipping comment line" >> "$LOG_FILE"
+    # Skip comments
+    [[ $line == \#* ]] && {
+        echo "Skipping comment: $line" >> "$LOG_FILE"
         continue
-    fi
+    }
 
     # Extract username and groups
     username=$(echo "$line" | cut -d ";" -f1 | tr -d " ")
-    groups=$(echo "$line"    | cut -d ";" -f2 | tr -d " ")
+    groups=$(echo "$line" | cut -d ";" -f2 | tr -d " ")
 
     echo "Processing user: $username" | tee -a "$LOG_FILE"
 
@@ -61,13 +63,13 @@ while IFS= read -r line || [ -n "$line" ]; do
         echo "Created user $username" >> "$LOG_FILE"
     fi
 
-    # Ensure home directory exists
+    # Ensure home directory
     if [ ! -d "/home/$username" ]; then
         mkdir -p "/home/$username"
         echo "Created home directory for $username" >> "$LOG_FILE"
     fi
 
-    # Fix permissions
+    # Set permissions
     chown -R "$username:$username" "/home/$username"
 
     # Add extra groups
@@ -86,17 +88,16 @@ while IFS= read -r line || [ -n "$line" ]; do
         done
     fi
 
-    # Create random 12-character password
+    # Generate random 12-character password
     password=$(openssl rand -base64 9)
 
     # Set password
     echo "$username:$password" | chpasswd
 
-    # Save password securely
+    # Save credentials
     echo "$username : $password" >> "$PASSWORD_FILE"
 
 done < "$FILE"
 
-echo "Done!  All actions logged in $LOG_FILE"
+echo "Done! All actions logged in $LOG_FILE"
 echo "Passwords saved in $PASSWORD_FILE"
-
