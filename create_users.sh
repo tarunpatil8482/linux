@@ -2,21 +2,21 @@
 
 # Usage: sudo ./create_users.sh users.txt
 
-FILE=$1
+INPUT_FILE="$1"
 
-# Must run as root
+# Ensure script is run as root
 if [ "$EUID" -ne 0 ]; then
-    echo " Please run with sudo"
+    echo "Please run this script with sudo."
     exit 1
 fi
 
-# Check input file
-if [ ! -f "$FILE" ]; then
-    echo " File not found: $FILE"
+# Check file exists
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "File not found: $INPUT_FILE"
     exit 1
 fi
 
-# Secure folders
+# Secure storage locations
 mkdir -p /var/secure
 chmod 700 /var/secure
 
@@ -31,17 +31,17 @@ chmod 600 "$LOG_FILE"
 
 echo "Starting user creation process..." | tee -a "$LOG_FILE"
 
-# Convert file to Linux format (fix CRLF ^M issue)
-dos2unix "$FILE" 2>/dev/null
+# Convert CRLF (Windows) -> LF (Linux)
+dos2unix "$INPUT_FILE" 2>/dev/null
 
-# Read each line
+# Process file line by line
 while IFS= read -r line || [ -n "$line" ]; do
 
-    # Remove leading/trailing spaces
+    # Trim spaces
     line=$(echo "$line" | xargs)
 
     # Skip empty lines
-    [ -z "$line" ] && continue
+    [[ -z "$line" ]] && continue
 
     # Skip comments
     [[ $line == \#* ]] && {
@@ -55,7 +55,7 @@ while IFS= read -r line || [ -n "$line" ]; do
 
     echo "Processing user: $username" | tee -a "$LOG_FILE"
 
-    # Create user if not exists
+    # Create user if not already present
     if id "$username" &>/dev/null; then
         echo "User '$username' already exists" >> "$LOG_FILE"
     else
@@ -63,24 +63,24 @@ while IFS= read -r line || [ -n "$line" ]; do
         echo "Created user $username" >> "$LOG_FILE"
     fi
 
-    # Ensure home directory
+    # Make home directory if missing
     if [ ! -d "/home/$username" ]; then
         mkdir -p "/home/$username"
         echo "Created home directory for $username" >> "$LOG_FILE"
     fi
 
-    # Set permissions
+    # Assign correct permissions
     chown -R "$username:$username" "/home/$username"
 
-    # Add extra groups
+    # Add user to listed groups
     if [ -n "$groups" ]; then
-        IFS=',' read -ra g <<< "$groups"
-        for group in "${g[@]}"; do
+        IFS=',' read -ra list <<< "$groups"
+        for group in "${list[@]}"; do
 
-            # Create group if missing
-            if ! getent group "$group" >/dev/null; then
+            # Create group if it doesn't exist
+            if ! getent group "$group" > /dev/null; then
                 groupadd "$group"
-                echo "Created group $group" >> "$LOG_FILE"
+                echo "Created group: $group" >> "$LOG_FILE"
             fi
 
             usermod -aG "$group" "$username"
@@ -88,16 +88,16 @@ while IFS= read -r line || [ -n "$line" ]; do
         done
     fi
 
-    # Generate random 12-character password
+    # Generate random password (12 characters)
     password=$(openssl rand -base64 9)
 
-    # Set password
+    # Apply the password
     echo "$username:$password" | chpasswd
 
-    # Save credentials
+    # Save password to secure file
     echo "$username : $password" >> "$PASSWORD_FILE"
 
-done < "$FILE"
+done < "$INPUT_FILE"
 
-echo "Done! All actions logged in $LOG_FILE"
-echo "Passwords saved in $PASSWORD_FILE"
+echo "User creation complete! Log: $LOG_FILE"
+echo "Passwords stored securely in: $PASSWORD_FILE"
