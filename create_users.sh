@@ -6,13 +6,13 @@ FILE=$1
 
 # Must run as root
 if [ "$EUID" -ne 0 ]; then
-    echo "❗ Please run with sudo"
+    echo " Please run with sudo"
     exit 1
 fi
 
 # Check file
 if [ ! -f "$FILE" ]; then
-    echo "❗ File not found: $FILE"
+    echo " File not found: $FILE"
     exit 1
 fi
 
@@ -32,7 +32,8 @@ chmod 600 "$LOG_FILE"
 echo "Starting user creation process..." | tee -a "$LOG_FILE"
 
 # Read each line
-while read line; do
+while IFS= read -r line || [ -n "$line" ]; do
+
 
     # Trim whitespace
     line=$(echo "$line" | xargs)
@@ -96,6 +97,6 @@ while read line; do
 
 done < "$FILE"
 
-echo "Done! ✔ All actions logged in $LOG_FILE"
+echo "Done!  All actions logged in $LOG_FILE"
 echo "Passwords saved in $PASSWORD_FILE"
 
