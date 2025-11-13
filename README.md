@@ -85,7 +85,8 @@ The log file is here:
 To read it:
 
 sudo cat /var/log/user_management.log
-<img width="618" height="252" alt="image" src="https://github.com/user-attachments/assets/8cfced88-7769-4ce2-bdbd-e66cea0426d6" />
+<img width="659" height="161" alt="image" src="https://github.com/user-attachments/assets/ae346304-ca0b-433b-bc28-e507398be5e4" />
+
 
 
 Security Notes
@@ -123,5 +124,6 @@ user-management/
 ├── create_users.sh
 ├── users.txt
 └── README.md
+
 
 
