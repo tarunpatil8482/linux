@@ -58,7 +58,8 @@ chmod +x create_users.sh
 
 Step 2: Run the script (use sudo)
 sudo ./create_users.sh users.txt
-<img width="558" height="208" alt="image" src="https://github.com/user-attachments/assets/a4a38196-1958-4cdb-8d83-daf9e7eefd51" />
+<img width="560" height="104" alt="image" src="https://github.com/user-attachments/assets/378f1655-cd2b-43c2-94e8-a5442fb6d9dd" />
+
 
 
 How to See the Passwords
@@ -122,4 +123,5 @@ user-management/
 ├── create_users.sh
 ├── users.txt
 └── README.md
+
 
