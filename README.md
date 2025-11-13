@@ -58,6 +58,8 @@ chmod +x create_users.sh
 
 Step 2: Run the script (use sudo)
 sudo ./create_users.sh users.txt
+<img width="558" height="208" alt="image" src="https://github.com/user-attachments/assets/a4a38196-1958-4cdb-8d83-daf9e7eefd51" />
+
 
 How to See the Passwords
 
@@ -69,6 +71,8 @@ Passwords are saved in this file:
 To view them:
 
 sudo cat /var/secure/user_passwords.txt
+<img width="618" height="252" alt="image" src="https://github.com/user-attachments/assets/b02a8545-15d4-4f75-992a-746f2cfed36b" />
+
 
 How to See the Log File
 
@@ -80,6 +84,8 @@ The log file is here:
 To read it:
 
 sudo cat /var/log/user_management.log
+<img width="618" height="252" alt="image" src="https://github.com/user-attachments/assets/8cfced88-7769-4ce2-bdbd-e66cea0426d6" />
+
 
 Security Notes
 
@@ -116,3 +122,4 @@ user-management/
 ├── create_users.sh
 ├── users.txt
 └── README.md
+
