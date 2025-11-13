@@ -1,5 +1,5 @@
 # Sample users
-tarunpatil; dev,testing,www-date,devops
-tarun; sudo,dev
-rahul; www-data
-bheema; intern
+tarunpatil;dev,testing,www-data,devops
+tarun;sudo,dev
+rahul;www-data
+bheema;intern
